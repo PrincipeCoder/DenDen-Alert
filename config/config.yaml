@@ -1,0 +1,24 @@
+telegram:
+  chats:
+    - "Alertas SOC"
+
+filters:
+  keywords:
+    - "ALERTA CRÍTICA WAZUH"
+  users: []
+  case_sensitive: false
+
+tts:
+  provider: "local"
+  language: "es"
+  rate: 1.0
+  volume: 1.0
+
+audio:
+  output_device: "default"
+
+behavior:
+  read_only_new_messages: true
+  ignore_bots: true
+  ignore_empty_messages: true
+  deduplicate: true

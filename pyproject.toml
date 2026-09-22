@@ -1,0 +1,44 @@
+[project]
+name = "denden-alert"
+version = "0.1.0"
+description = "Telegram Voice Alert System"
+authors = [
+    { name = "Developer" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "telethon>=1.35.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.2.1",
+    "pyyaml>=6.0.1",
+    "pyttsx3>=2.90",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.5",
+    "ruff>=0.3.0",
+    "mypy>=1.9.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+denden-alert = "denden_alert.interfaces.cli:main"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
