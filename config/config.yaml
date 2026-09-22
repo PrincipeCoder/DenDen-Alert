@@ -19,6 +19,6 @@ audio:
 
 behavior:
   read_only_new_messages: true
-  ignore_bots: true
+  ignore_bots: false
   ignore_empty_messages: true
   deduplicate: true
