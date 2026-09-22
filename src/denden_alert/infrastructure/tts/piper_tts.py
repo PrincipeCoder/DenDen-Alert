@@ -58,7 +58,7 @@ class PiperTTSEngine(TTSEnginePort):
         )
         logger.info("¡Descarga de voz completada!")
 
-    async def synthesize(self, text: str) -> bytes:
+    async def synthesize(self, text: str, language: str = "es") -> bytes:
         """Convierte el texto a audio en formato WAV (bytes)."""
         if not self.voice:
             await self.initialize()
