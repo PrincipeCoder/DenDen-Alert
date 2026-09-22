@@ -14,7 +14,7 @@ from denden_alert.domain.filters import (
 )
 from denden_alert.application.services import TextSanitizer, MessageProcessor
 from denden_alert.application.services.alert_service import AlertService
-from denden_alert.infrastructure.tts.local_tts import LocalTTSEngine
+from denden_alert.infrastructure.tts.piper_tts import PiperTTSEngine
 from denden_alert.infrastructure.audio.player import LocalAudioPlayer
 from denden_alert.infrastructure.persistence.state_store import StateStore
 from denden_alert.domain.models.chat import Chat, ChatType
@@ -48,7 +48,7 @@ def build_dependencies(settings):
     sanitizer = TextSanitizer()
     processor = MessageProcessor(composite_filter, sanitizer, state_store=state_store)
     
-    tts_engine = LocalTTSEngine(
+    tts_engine = PiperTTSEngine(
         rate=settings.app_config.tts.rate, 
         volume=settings.app_config.tts.volume
     )

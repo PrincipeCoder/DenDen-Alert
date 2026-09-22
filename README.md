@@ -86,3 +86,78 @@ Por defecto, Windows incluye voces de síntesis (TTS) muy básicas. Si deseas un
 El proyecto utiliza **Clean Architecture** separando claramente la lógica de negocio (`domain`), los casos de uso (`application`) y los detalles técnicos (`infrastructure`). 
 
 Los logs de la ejecución se muestran en la consola y se guardan automáticamente en `logs/denden.log` para futuras auditorías o debugging.
+## Despliegue en Servidor Linux (Producción)
+
+Si vas a ejecutar el sistema en un servidor o máquina Linux dedicada (ej. una Raspberry Pi en tu SOC), debes configurar un servicio para que se ejecute en segundo plano y se inicie automáticamente con el sistema.
+
+### 1. Requisitos previos en Linux
+Instala las bibliotecas de sistema necesarias para que el motor de voz (`espeak`) funcione:
+
+**Para Debian/Ubuntu:**
+```bash
+sudo apt update
+sudo apt install python3-venv python3-pip espeak alsa-utils libespeak1
+```
+
+**Para Fedora/RHEL:**
+```bash
+sudo dnf update
+sudo dnf install python3 python3-pip espeak-ng alsa-utils
+```
+
+### 2. Clonar y Configurar
+Clona el repositorio, crea el entorno virtual e instala las dependencias:
+```bash
+git clone https://github.com/tu_usuario/DenDen-Alert.git
+cd DenDen-Alert
+python3 -m venv venv
+source venv/bin/activate
+pip install -e .
+```
+> **Nota:** No olvides crear y llenar tus archivos `.env` y `config/config.yaml`.
+
+### 3. Autenticación Inicial (¡Muy Importante!)
+Telethon requiere que inicies sesión la primera vez para generar el archivo de sesión (`denden_alert.session`). Debes ejecutar esto **manualmente** antes de mandarlo a segundo plano:
+```bash
+python -m denden_alert start
+```
+*Introduce tu número de teléfono y el código de Telegram. Una vez que veas "Escuchando mensajes...", presiona `Ctrl+C` para detenerlo.*
+
+### 4. Crear Servicio de Systemd
+Crea un archivo de servicio para administrar la aplicación:
+```bash
+sudo nano /etc/systemd/system/denden-alert.service
+```
+
+Pega la siguiente configuración (asegúrate de cambiar `/ruta/absoluta/a/DenDen-Alert` y tu `Usuario` por los reales):
+```ini
+[Unit]
+Description=DenDen-Alert Telegram Voice Alert Service
+After=network.target
+
+[Service]
+Type=simple
+User=tu_usuario_linux
+WorkingDirectory=/ruta/absoluta/a/DenDen-Alert
+ExecStart=/ruta/absoluta/a/DenDen-Alert/venv/bin/python -m denden_alert start
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### 5. Iniciar y Habilitar
+Recarga los servicios, habilítalo para que arranque con el sistema e inícialo:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable denden-alert.service
+sudo systemctl start denden-alert.service
+```
+
+Para ver los logs en tiempo real:
+```bash
+sudo journalctl -u denden-alert.service -f
+# O puedes revisar directamente el log del proyecto:
+tail -f logs/denden.log
+```
