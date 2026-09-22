@@ -16,7 +16,7 @@ class PiperTTSEngine(TTSEnginePort):
         self.rate = rate
         self.volume = volume
         self.models_dir = "models"
-        self.model_name = "es_ES-alba-medium.onnx"
+        self.model_name = "es_ES-davefx-medium.onnx"
         self.model_path = os.path.join(self.models_dir, self.model_name)
         self.config_path = self.model_path + ".json"
         
@@ -39,8 +39,8 @@ class PiperTTSEngine(TTSEnginePort):
         self.voice = PiperVoice.load(self.model_path, config_path=self.config_path)
 
     async def _download_model(self):
-        """Descarga el modelo de voz Alba (Español) desde HuggingFace."""
-        base_url = "https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/alba/medium/"
+        """Descarga el modelo de voz desde HuggingFace."""
+        base_url = "https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/davefx/medium/"
         
         logger.info(f"Descargando modelo de voz Piper TTS ({self.model_name}). Esto solo ocurre una vez...")
         
@@ -86,6 +86,9 @@ class PiperTTSEngine(TTSEnginePort):
 
     def _synthesize_sync(self, text: str, output_path: str):
         with wave.open(output_path, "wb") as wav_file:
-            # Configuración por defecto para mono 16kHz o 22kHz que Piper requiera
-            # Piper setea automáticamente los parámetros del archivo WAV en el método synthesize
-            self.voice.synthesize(text, wav_file)
+            wav_file.setnchannels(1)
+            wav_file.setsampwidth(2) # 16-bit
+            wav_file.setframerate(self.voice.config.sample_rate)
+            
+            for chunk in self.voice.synthesize(text):
+                wav_file.writeframes(chunk.audio_int16_bytes)
